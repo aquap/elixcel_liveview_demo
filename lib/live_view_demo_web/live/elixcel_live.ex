@@ -48,6 +48,8 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     {:noreply, assign(socket, current_cell: [current_column, current_row + 1])}
   end
 
+  def handle_event("keydown", _, socket), do: {:noreply, socket}
+
   defp rows(_sheet) do
     Enum.with_index([["x", "x2"], ["y", "y2"]])
   end
