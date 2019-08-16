@@ -10,7 +10,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
           <tr>
             <td><%= row_index + 1 %></td>
             <%= for {cell, column_index} <- cells(row) do %>
-              <td <%= active?(column_index, row_index, @current_cell) %>><%= cell %></td>
+              <td <%= active?(column_index, row_index, @current_cell, @edit_mode) %>><%= cell %></td>
             <% end %>
            </tr>
         <% end %>
@@ -25,7 +25,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   def mount(_session, socket) do
-    {:ok, assign(socket, sheet: [[nil, nil, nil], [nil, nil, nil]], current_cell: [0, 0])}
+    {:ok, assign(socket, sheet: [[nil, nil, nil], [nil, nil, nil]], current_cell: [0, 0], edit_mode: false)}
   end
 
   def handle_event("keydown", "ArrowRight", socket) do
@@ -48,7 +48,11 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     {:noreply, assign(socket, current_cell: [current_column, current_row + 1])}
   end
 
-  def handle_event("keydown", _, socket), do: {:noreply, socket}
+  def handle_event("keydown", "Enter", socket) do
+    {:noreply, assign(socket, edit_mode: !socket.assigns.edit_mode)}
+  end
+
+  def handle_event("keydown", _key, socket), do: {:noreply, socket}
 
   defp rows(_sheet) do
     Enum.with_index([["x", "x2"], ["y", "y2"]])
@@ -58,9 +62,13 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     Enum.with_index(row)
   end
 
-  defp active?(column, row, current_cell) do
+  defp active?(column, row, current_cell, true) do
+    [current_column, current_row] = current_cell
+    column == current_column && row == current_row && "contenteditable=true class=active" || ""
+  end
+
+  defp active?(column, row, current_cell, false) do
     [current_column, current_row] = current_cell
     column == current_column && row == current_row && "class=active" || ""
   end
-
 end
