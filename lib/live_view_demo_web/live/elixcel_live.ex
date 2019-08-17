@@ -22,10 +22,14 @@ defmodule LiveViewDemoWeb.ElixcelLive do
       </tbody>
     </table>
 
+    <a href="#" phx-click="add-row">Add Row</a>
+    <br>
+    <a href="#" phx-click="add-col">Add Column</a>
+
     <style>
       td { border: 0.5px solid #bbb; }
       td.border { background-color: #eee; text-align: center; }
-      td.border.selected { background-color: #ccc;  }
+      td.border.selected { background-color: #ddd;  }
       td.active { border-color: #4b89ff; background-color: #dff4fb; }
     </style>
     """
@@ -65,6 +69,10 @@ end
   end
 
   def handle_event("keydown", _key, socket), do: {:noreply, socket}
+
+  def handle_event("add-row", _, socket) do
+    {:noreply, assign(socket, sheet: socket.assigns.sheet ++ [[nil, nil, nil]])}
+  end
 
   defp rows(sheet) do
     Enum.with_index(sheet)
