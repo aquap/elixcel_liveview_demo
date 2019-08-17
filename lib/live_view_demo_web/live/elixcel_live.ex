@@ -7,8 +7,8 @@ defmodule LiveViewDemoWeb.ElixcelLive do
       <tbody>
         <tr>
           <td></td>
-          <%= for {col, col_index} <- cols(@sheet) do %>
-            <td class="border"><%= List.to_string([?A + col_index]) %></td>
+          <%= for {_col, col_index} <- cols(@sheet) do %>
+            <td class="border <%= selected_col_class(col_index, @current_cell) %>"><%= List.to_string([?A + col_index]) %></td>
           <%= end %>
         </tr>
         <%= for {row, row_index} <- rows(@sheet) do %>
@@ -83,6 +83,9 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     [current_column, current_row] = current_cell
     column == current_column && row == current_row && "class=active" || ""
   end
+
+  defp selected_col_class(col, [col, _]), do: "selected"
+  defp selected_col_class(_, _), do: ""
 
   defp selected_row_class(row, [_, row]), do: "selected"
   defp selected_row_class(_, _), do: ""
