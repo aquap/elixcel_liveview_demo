@@ -46,7 +46,7 @@ end
 
   def handle_event("keydown", "ArrowRight", socket) do
     [current_column, current_row] = socket.assigns.current_cell
-    {:noreply, assign(socket, current_cell: [current_column + 1, current_row])}
+    {:noreply, assign(socket, current_cell: [min(current_column + 1, number_of_columns(socket.assigns.sheet) - 1), current_row])}
   end
 
   def handle_event("keydown", "ArrowLeft", socket) do
@@ -61,7 +61,7 @@ end
 
   def handle_event("keydown", "ArrowDown", socket) do
     [current_column, current_row] = socket.assigns.current_cell
-    {:noreply, assign(socket, current_cell: [current_column, current_row + 1])}
+    {:noreply, assign(socket, current_cell: [current_column, min(current_row + 1, number_of_rows(socket.assigns.sheet) - 1)])}
   end
 
   def handle_event("keydown", "Enter", socket) do
@@ -87,6 +87,7 @@ end
   defp cells(row), do: Enum.with_index(row)
 
   defp number_of_columns(sheet), do: sheet |> List.first() |> length
+  defp number_of_rows(sheet), do: sheet |> length
 
   defp active?(column, row, current_cell, true) do
     [current_column, current_row] = current_cell
