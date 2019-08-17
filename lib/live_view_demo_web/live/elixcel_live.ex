@@ -71,8 +71,7 @@ end
   def handle_event("keydown", _key, socket), do: {:noreply, socket}
 
   def handle_event("add-row", _, socket) do
-    [first_row | _] = socket.assigns.sheet
-    new_row = List.duplicate(nil, length(first_row))
+    new_row = List.duplicate(nil, number_of_columns(socket.assigns.sheet))
     {:noreply, assign(socket, sheet: socket.assigns.sheet ++ [new_row])}
   end
 
@@ -81,18 +80,13 @@ end
     {:noreply, assign(socket, sheet: sheet)}
   end
 
-  defp rows(sheet) do
-    Enum.with_index(sheet)
-  end
+  defp rows(sheet), do: Enum.with_index(sheet)
 
-  def cols(sheet) do
-    [first_row | _] = sheet
-    Enum.with_index(first_row)
-  end
+  defp cols(sheet), do: sheet |> List.first() |> Enum.with_index()
 
-  defp cells(row) do
-    Enum.with_index(row)
-  end
+  defp cells(row), do: Enum.with_index(row)
+
+  defp number_of_columns(sheet), do: sheet |> List.first() |> length
 
   defp active?(column, row, current_cell, true) do
     [current_column, current_row] = current_cell
