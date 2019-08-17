@@ -74,6 +74,11 @@ end
     {:noreply, assign(socket, sheet: socket.assigns.sheet ++ [[nil, nil, nil]])}
   end
 
+  def handle_event("add-col", _, socket) do
+    sheet = socket.assigns.sheet |> Enum.map(fn row -> row ++ [nil] end)
+    {:noreply, assign(socket, sheet: sheet)}
+  end
+
   defp rows(sheet) do
     Enum.with_index(sheet)
   end
