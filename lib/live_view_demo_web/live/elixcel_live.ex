@@ -32,7 +32,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   def mount(_session, socket) do
-    {:ok, assign(socket, sheet: [[nil, nil, nil], [nil, nil, nil]], current_cell: [0, 0], edit_mode: false)}
+    {:ok, assign(socket, sheet: [[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]], current_cell: [0, 0], edit_mode: false)}
   end
 
   def handle_event("keydown", "ArrowRight", socket) do
@@ -66,7 +66,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   def cols(sheet) do
-    [first_row, _] = sheet
+    [first_row | _] = sheet
     Enum.with_index(first_row)
   end
 
