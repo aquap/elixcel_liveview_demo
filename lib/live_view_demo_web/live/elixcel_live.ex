@@ -71,7 +71,9 @@ end
   def handle_event("keydown", _key, socket), do: {:noreply, socket}
 
   def handle_event("add-row", _, socket) do
-    {:noreply, assign(socket, sheet: socket.assigns.sheet ++ [[nil, nil, nil]])}
+    [first_row | _] = socket.assigns.sheet
+    new_row = List.duplicate(nil, length(first_row))
+    {:noreply, assign(socket, sheet: socket.assigns.sheet ++ [new_row])}
   end
 
   def handle_event("add-col", _, socket) do
