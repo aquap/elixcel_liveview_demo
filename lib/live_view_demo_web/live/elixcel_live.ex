@@ -15,7 +15,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
           <tr>
             <td class="border <%= selected_row_class(row_index, @current_cell) %>"><%= row_index + 1 %></td>
             <%= for {cell, column_index} <- cells(row) do %>
-              <td <%= active?(column_index, row_index, @current_cell, @edit_mode) %>><%= cell %></td>
+              <td phx-click="goto-cell" phx-value="<%= column_index %>,<%= row_index %>" <%= active?(column_index, row_index, @current_cell, @edit_mode) %>><%= cell %></td>
             <% end %>
            </tr>
         <% end %>
@@ -34,6 +34,11 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   def mount(_session, socket) do
     {:ok, assign(socket, sheet: [[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]], current_cell: [0, 0], edit_mode: false)}
   end
+
+  def handle_event("goto-cell", col_row, socket) do
+    [col, row] = col_row |> String.split(",") |> Enum.map(&String.to_integer/1)
+    {:noreply, assign(socket, current_cell: [col, row])}
+end
 
   def handle_event("keydown", "ArrowRight", socket) do
     [current_column, current_row] = socket.assigns.current_cell
