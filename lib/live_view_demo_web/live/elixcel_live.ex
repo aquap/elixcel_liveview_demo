@@ -8,7 +8,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
         <tr><td></td><td class="border">A</td><td class="border">B</td></tr>
         <%= for {row, row_index} <- rows(@sheet) do %>
           <tr>
-            <td class="border <%= selected_row?(row_index, @current_cell) %>"><%= row_index + 1 %></td>
+            <td class="border <%= selected_row_class(row_index, @current_cell) %>"><%= row_index + 1 %></td>
             <%= for {cell, column_index} <- cells(row) do %>
               <td <%= active?(column_index, row_index, @current_cell, @edit_mode) %>><%= cell %></td>
             <% end %>
@@ -74,6 +74,6 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     column == current_column && row == current_row && "class=active" || ""
   end
 
-  defp selected_row?(row, [_, row]), do: " selected"
-  defp selected_row?(_, _), do: ""
+  defp selected_row_class(row, [_, row]), do: "selected"
+  defp selected_row_class(_, _), do: ""
 end
