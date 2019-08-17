@@ -5,10 +5,10 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     ~L"""
     <table phx-keydown="keydown" phx-target="window">
       <tbody>
-        <tr><td></td><td>A</td><td>B</td></tr>
+        <tr><td></td><td class="border">A</td><td class="border">B</td></tr>
         <%= for {row, row_index} <- rows(@sheet) do %>
           <tr>
-            <td><%= row_index + 1 %></td>
+            <td class="border"><%= row_index + 1 %></td>
             <%= for {cell, column_index} <- cells(row) do %>
               <td <%= active?(column_index, row_index, @current_cell, @edit_mode) %>><%= cell %></td>
             <% end %>
@@ -18,7 +18,8 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     </table>
 
     <style>
-      td { border: 1px solid #e1e1e1; }
+      td { border: 0.5px solid #bbb; }
+      td.border { background-color: #eee; text-align: center; }
       td.active { background-color: #dff4fb; }
     </style>
     """
