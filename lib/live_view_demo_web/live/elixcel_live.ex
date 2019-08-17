@@ -20,7 +20,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     <style>
       td { border: 0.5px solid #bbb; }
       td.border { background-color: #eee; text-align: center; }
-      td.active { background-color: #dff4fb; }
+      td.active { border-color: #4b89ff; background-color: #dff4fb; }
     </style>
     """
   end
