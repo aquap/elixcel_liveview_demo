@@ -5,7 +5,12 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     ~L"""
     <table phx-keydown="keydown" phx-target="window">
       <tbody>
-        <tr><td></td><td class="border">A</td><td class="border">B</td></tr>
+        <tr>
+          <td></td>
+          <%= for {col, col_index} <- cols(@sheet) do %>
+            <td class="border"><%= List.to_string([?A + col_index]) %></td>
+          <%= end %>
+        </tr>
         <%= for {row, row_index} <- rows(@sheet) do %>
           <tr>
             <td class="border <%= selected_row_class(row_index, @current_cell) %>"><%= row_index + 1 %></td>
@@ -56,8 +61,13 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   def handle_event("keydown", _key, socket), do: {:noreply, socket}
 
-  defp rows(_sheet) do
-    Enum.with_index([["x", "x2"], ["y", "y2"]])
+  defp rows(sheet) do
+    Enum.with_index(sheet)
+  end
+
+  def cols(sheet) do
+    [first_row, _] = sheet
+    Enum.with_index(first_row)
   end
 
   defp cells(row) do
