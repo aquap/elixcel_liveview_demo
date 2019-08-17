@@ -35,12 +35,12 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   def handle_event("keydown", "ArrowLeft", socket) do
     [current_column, current_row] = socket.assigns.current_cell
-    {:noreply, assign(socket, current_cell: [current_column - 1, current_row])}
+    {:noreply, assign(socket, current_cell: [max(current_column - 1, 0), current_row])}
   end
 
   def handle_event("keydown", "ArrowUp", socket) do
     [current_column, current_row] = socket.assigns.current_cell
-    {:noreply, assign(socket, current_cell: [current_column, current_row - 1])}
+    {:noreply, assign(socket, current_cell: [current_column, max(current_row - 1, 0)])}
   end
 
   def handle_event("keydown", "ArrowDown", socket) do
