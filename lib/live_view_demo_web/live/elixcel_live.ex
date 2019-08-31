@@ -44,27 +44,27 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     {:noreply, assign(socket, current_cell: [col, row])}
 end
 
-  def handle_event("keydown", "ArrowRight", socket) do
+  def handle_event("keydown", %{"code" => "ArrowRight"}, socket) do
     [current_column, current_row] = socket.assigns.current_cell
     {:noreply, assign(socket, current_cell: [min(current_column + 1, number_of_columns(socket.assigns.sheet) - 1), current_row])}
   end
 
-  def handle_event("keydown", "ArrowLeft", socket) do
+  def handle_event("keydown", %{"code" => "ArrowLeft"}, socket) do
     [current_column, current_row] = socket.assigns.current_cell
     {:noreply, assign(socket, current_cell: [max(current_column - 1, 0), current_row])}
   end
 
-  def handle_event("keydown", "ArrowUp", socket) do
+  def handle_event("keydown", %{"code" => "ArrowUp"}, socket) do
     [current_column, current_row] = socket.assigns.current_cell
     {:noreply, assign(socket, current_cell: [current_column, max(current_row - 1, 0)])}
   end
 
-  def handle_event("keydown", "ArrowDown", socket) do
+  def handle_event("keydown", %{"code" => "ArrowDown"}, socket) do
     [current_column, current_row] = socket.assigns.current_cell
     {:noreply, assign(socket, current_cell: [current_column, min(current_row + 1, number_of_rows(socket.assigns.sheet) - 1)])}
   end
 
-  def handle_event("keydown", "Enter", socket) do
+  def handle_event("keydown", %{"code" => "Enter"}, socket) do
     {:noreply, assign(socket, edit_mode: !socket.assigns.edit_mode)}
   end
 
