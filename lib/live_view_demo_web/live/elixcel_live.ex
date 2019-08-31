@@ -15,7 +15,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
           <tr>
             <td class="border <%= selected_row_class(row_index, @current_cell) %>"><%= row_index + 1 %></td>
             <%= for {cell, column_index} <- cells(row) do %>
-              <td phx-click="goto-cell" phx-value="<%= column_index %>,<%= row_index %>" <%= active?(column_index, row_index, @current_cell, @edit_mode) %>><%= cell %></td>
+              <td phx-click="goto-cell" phx-value="<%= column_index %>,<%= row_index %>" <%= active?(column_index, row_index, @current_cell, @editing) %>><%= cell %></td>
             <% end %>
            </tr>
         <% end %>
@@ -35,7 +35,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   def mount(_session, socket) do
-    {:ok, assign(socket, sheet: [[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]], current_cell: [0, 0], edit_mode: false)}
+    {:ok, assign(socket, sheet: [[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]], current_cell: [0, 0], editing: false)}
   end
 
   def handle_event("goto-cell", col_row, socket) do
@@ -64,7 +64,7 @@ end
   end
 
   def handle_event("keydown", %{"code" => "Enter"}, socket) do
-    {:noreply, assign(socket, edit_mode: !socket.assigns.edit_mode)}
+    {:noreply, assign(socket, editing: !socket.assigns.editing)}
   end
 
   def handle_event("keydown", _key, socket), do: {:noreply, socket}
