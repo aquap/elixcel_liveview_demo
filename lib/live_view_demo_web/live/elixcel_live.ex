@@ -9,7 +9,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
           <td></td>
           <%= for {_col, col_index} <- cols(@sheet) do %>
             <td class="border <%= selected_col_class(col_index, @current_cell) %>"><%= List.to_string([?A + col_index]) %></td>
-          <%= end %>
+          <% end %>
         </tr>
         <%= for {row, row_index} <- rows(@sheet) do %>
           <tr>
@@ -22,8 +22,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
       </tbody>
     </table>
 
-    <a href="#" phx-click="add-row">Add Row</a>
-    <br>
+    <a href="#" phx-click="add-row">Add Row</a><br>
     <a href="#" phx-click="add-col">Add Column</a>
 
     <style>
