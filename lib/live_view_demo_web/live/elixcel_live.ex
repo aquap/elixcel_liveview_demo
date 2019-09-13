@@ -15,7 +15,13 @@ defmodule LiveViewDemoWeb.ElixcelLive do
           <tr>
             <td class="border <%= selected_row_class(row_index, @current_cell) %>"><%= row_index + 1 %></td>
             <%= for {cell, column_index} <- cells(row) do %>
-              <td phx-click="goto-cell" phx-value="<%= column_index %>,<%= row_index %>" <%= active?(column_index, row_index, @current_cell, @editing) %>><%= cell %></td>
+              <td phx-click="goto-cell" phx-value="<%= column_index %>,<%= row_index %>" class="<%= active_class(column_index, row_index, @current_cell) %>">
+                <%= if @editing && [column_index, row_index] == @current_cell do %>
+                  XXX
+                <% else %>
+                  <%= cell %>
+                <% end %>
+              </td>
             <% end %>
            </tr>
         <% end %>
@@ -38,19 +44,24 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     {:ok, assign(socket, sheet: [[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]], current_cell: [0, 0], editing: false)}
   end
 
-  def handle_event("goto-cell", col_row, socket) do
-    [col, row] = col_row |> String.split(",") |> Enum.map(&String.to_integer/1)
-    {:noreply, assign(socket, current_cell: [col, row])}
-end
 
-  def handle_event("keydown", %{"code" => "ArrowRight"}, socket) do
-    [current_column, current_row] = socket.assigns.current_cell
-    {:noreply, assign(socket, current_cell: [min(current_column + 1, number_of_columns(socket.assigns.sheet) - 1), current_row])}
+  # Keydown events - navigation with the arrow keys and toggling editing with the enter key
+
+  def handle_event("keydown", %{"code" => "Enter"}, socket) do
+    {:noreply, assign(socket, editing: !socket.assigns.editing)}
   end
+
+  # Ignore keydown events when editing
+  def handle_event("keydown", _, %{assigns: %{editing: true}} = socket), do: {:noreply, socket}
 
   def handle_event("keydown", %{"code" => "ArrowLeft"}, socket) do
     [current_column, current_row] = socket.assigns.current_cell
     {:noreply, assign(socket, current_cell: [max(current_column - 1, 0), current_row])}
+  end
+
+  def handle_event("keydown", %{"code" => "ArrowRight"}, socket) do
+    [current_column, current_row] = socket.assigns.current_cell
+    {:noreply, assign(socket, current_cell: [min(current_column + 1, number_of_columns(socket.assigns.sheet) - 1), current_row])}
   end
 
   def handle_event("keydown", %{"code" => "ArrowUp"}, socket) do
@@ -63,11 +74,15 @@ end
     {:noreply, assign(socket, current_cell: [current_column, min(current_row + 1, number_of_rows(socket.assigns.sheet) - 1)])}
   end
 
-  def handle_event("keydown", %{"code" => "Enter"}, socket) do
-    {:noreply, assign(socket, editing: !socket.assigns.editing)}
-  end
-
   def handle_event("keydown", _key, socket), do: {:noreply, socket}
+
+
+  # Other events
+
+  def handle_event("goto-cell", col_row, socket) do
+    [col, row] = col_row |> String.split(",") |> Enum.map(&String.to_integer/1)
+    {:noreply, assign(socket, current_cell: [col, row])}
+  end
 
   def handle_event("add-row", _, socket) do
     new_row = List.duplicate(nil, number_of_columns(socket.assigns.sheet))
@@ -79,24 +94,18 @@ end
     {:noreply, assign(socket, sheet: sheet)}
   end
 
+
+  # Private functions
+
   defp rows(sheet), do: Enum.with_index(sheet)
-
   defp cols(sheet), do: sheet |> List.first() |> Enum.with_index()
-
   defp cells(row), do: Enum.with_index(row)
 
-  defp number_of_columns(sheet), do: sheet |> List.first() |> length
   defp number_of_rows(sheet), do: sheet |> length
+  defp number_of_columns(sheet), do: sheet |> List.first() |> length
 
-  defp active?(column, row, current_cell, true) do
-    [current_column, current_row] = current_cell
-    column == current_column && row == current_row && "contenteditable=true class=active" || ""
-  end
-
-  defp active?(column, row, current_cell, false) do
-    [current_column, current_row] = current_cell
-    column == current_column && row == current_row && "class=active" || ""
-  end
+  defp active_class(column, row, [column, row]), do: "active"
+  defp active_class(_, _, _), do: ""
 
   defp selected_col_class(col, [col, _]), do: "selected"
   defp selected_col_class(_, _), do: ""
