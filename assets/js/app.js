@@ -22,7 +22,8 @@ import LiveSocket from "phoenix_live_view"
 let Hooks = {}
 Hooks.SetFocus = {
     mounted() {
-      this.el.focus()
+      this.el.focus();
+      this.el.selectionStart = this.el.selectionEnd = this.el.value.length;
     }
 }
 
