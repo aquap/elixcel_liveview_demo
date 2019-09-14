@@ -60,7 +60,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   # Keydown events - navigation with the arrow keys and toggling editing with the enter key
   def handle_event("keydown", %{"code" => "Enter"}, socket) do
-    {:noreply, assign(socket, editing: true, changeset: changeset(""))}
+    {:noreply, assign(socket, editing: true, changeset: changeset(current_cell_value(socket)))}
   end
 
   def handle_event("keydown", %{"code" => "ArrowLeft"}, socket) do
@@ -121,6 +121,11 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   # Private functions
   defp changeset(value) do
     %LiveViewDemoWeb.ElixcelLive{} |> Ecto.Changeset.cast(%{value: value}, [:value])
+  end
+
+  defp current_cell_value(socket) do
+    [current_column, current_row] = socket.assigns.current_cell
+    socket.assigns.sheet |> Enum.at(current_row) |> Enum.at(current_column)
   end
 
   defp rows(sheet), do: Enum.with_index(sheet)
