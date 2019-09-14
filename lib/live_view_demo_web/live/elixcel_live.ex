@@ -21,7 +21,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
           <tr>
             <td class="border <%= selected_row_class(row_index, @current_cell) %>"><%= row_index + 1 %></td>
             <%= for {cell, column_index} <- cells(row) do %>
-              <td phx-click="goto-cell" phx-value="<%= column_index %>,<%= row_index %>" class="<%= active_class(column_index, row_index, @current_cell) %>">
+              <td phx-click="goto-cell" phx-value-column="<%= column_index %>" phx-value-row="<%= row_index %>" class="<%= active_class(column_index, row_index, @current_cell) %>">
                 <%= if @editing && [column_index, row_index] == @current_cell && @changeset do %>
                   <%= f = form_for @changeset, "#", [phx_change: :validate, phx_submit: :save] %>
                     <%= text_input f, :value, "phx-hook": "SetFocus" %>
@@ -40,7 +40,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     <a href="#" phx-click="add-col">Add Column</a>
 
     <style>
-      td { border: 0.5px solid #bbb; }
+      td { border: 0.5px solid #bbb; width: 120px; }
       td.border { background-color: #eee; text-align: center; }
       td.border.selected { background-color: #ddd;  }
       td.active { border-color: #4b89ff; background-color: #dff4fb; }
@@ -97,9 +97,8 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   # Other events
 
-  def handle_event("goto-cell", col_row, socket) do
-    [col, row] = col_row |> String.split(",") |> Enum.map(&String.to_integer/1)
-    {:noreply, assign(socket, current_cell: [col, row])}
+  def handle_event("goto-cell", %{"column" => column, "row" => row}, socket) do
+    {:noreply, assign(socket, current_cell: [String.to_integer(column), String.to_integer(row)])}
   end
 
   def handle_event("add-row", _, socket) do
