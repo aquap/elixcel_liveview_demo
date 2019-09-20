@@ -81,22 +81,62 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     {:noreply, assign(socket, editing: false, edited_value: nil)}
   end
 
-  # Navigation with the arrow keys
-
-  def handle_event("keydown", %{"code" => "ArrowLeft"}, socket) do
-    {:noreply, assign(socket, current_cell: cell(socket, :left), editing: false)}
+  # Navigation with the arrow keys - when not editing we just move
+  def handle_event("keydown", %{"code" => "ArrowLeft"}, %{assigns: %{editing: false}} = socket) do
+    {:noreply, assign(socket, current_cell: move(:left, socket))}
   end
 
-  def handle_event("keydown", %{"code" => "ArrowRight"}, socket) do
-    {:noreply, assign(socket, current_cell: cell(socket, :right), editing: false)}
+  def handle_event("keydown", %{"code" => "ArrowRight"}, %{assigns: %{editing: false}} = socket) do
+    {:noreply, assign(socket, current_cell: move(:right, socket))}
   end
 
-  def handle_event("keydown", %{"code" => "ArrowUp"}, socket) do
-    {:noreply, assign(socket, current_cell: cell(socket, :up), editing: false)}
+  def handle_event("keydown", %{"code" => "ArrowUp"}, %{assigns: %{editing: false}} = socket) do
+    {:noreply, assign(socket, current_cell: move(:up, socket))}
   end
 
-  def handle_event("keydown", %{"code" => "ArrowDown"}, socket) do
-    {:noreply, assign(socket, current_cell: cell(socket, :down), editing: false)}
+  def handle_event("keydown", %{"code" => "ArrowDown"}, %{assigns: %{editing: false}} = socket) do
+    {:noreply, assign(socket, current_cell: move(:down, socket))}
+  end
+
+  # Navigation with the arrow keys - when editing we save the edited value and move
+  def handle_event("keyup", %{"code" => "ArrowLeft"}, %{assigns: %{editing: true}} = socket) do
+    {:noreply,
+     assign(socket,
+       current_cell: move(:left, socket),
+       editing: false,
+       sheet: updated_sheet(socket),
+       edited_value: nil
+     )}
+  end
+
+  def handle_event("keyup", %{"code" => "ArrowRight"}, %{assigns: %{editing: true}} = socket) do
+    {:noreply,
+     assign(socket,
+       current_cell: move(:right, socket),
+       editing: false,
+       sheet: updated_sheet(socket),
+       edited_value: nil
+     )}
+  end
+
+  def handle_event("keyup", %{"code" => "ArrowUp"}, %{assigns: %{editing: true}} = socket) do
+    {:noreply,
+     assign(socket,
+       current_cell: move(:up, socket),
+       editing: false,
+       sheet: updated_sheet(socket),
+       edited_value: nil
+     )}
+  end
+
+  def handle_event("keyup", %{"code" => "ArrowDown"}, %{assigns: %{editing: true}} = socket) do
+    {:noreply,
+     assign(socket,
+       current_cell: move(:down, socket),
+       editing: false,
+       sheet: updated_sheet(socket),
+       edited_value: nil
+     )}
   end
 
   # Pressing an alpha-numeric key will enter the edit mode
@@ -162,7 +202,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     socket.assigns.sheet |> Enum.at(current_row) |> Enum.at(current_column)
   end
 
-  defp cell(socket, direction) do
+  defp move(direction, socket) do
     [current_column, current_row] = socket.assigns.current_cell
 
     case direction do
