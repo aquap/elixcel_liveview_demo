@@ -10,7 +10,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   def render(assigns) do
     ~L"""
-    <table phx-keydown="keydown" phx-target="window">
+    <table phx-keydown="keydown" phx-keyup="keyup" phx-target="window">
       <tbody>
         <tr>
           <td></td>
@@ -24,7 +24,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
             <%= for {cell, column_index} <- cells(row) do %>
               <td phx-click="goto-cell" phx-value-column="<%= column_index %>" phx-value-row="<%= row_index %>" class="<%= active_class(column_index, row_index, @current_cell) %>">
                 <%= if @editing && [column_index, row_index] == @current_cell && @changeset do %>
-                  <%= f = form_for @changeset, "#", [phx_change: :validate, phx_submit: :save] %>
+                  <%= f = form_for @changeset, "#", [phx_change: :change,  phx_submit: :save] %>
                     <%= text_input f, :value, "phx-hook": "SetFocus" %>
                   </form>
                 <% else %>
@@ -59,49 +59,48 @@ defmodule LiveViewDemoWeb.ElixcelLive do
      )}
   end
 
-  # Ignore navigation keydown events when editing
-  def handle_event("keydown", _, %{assigns: %{editing: true}} = socket), do: {:noreply, socket}
+  # Keyboard events
 
-  # Keydown events - navigation with the arrow keys and toggling editing with the enter key
-  def handle_event("keydown", %{"code" => "Enter"}, socket) do
-    {:noreply, assign(socket, editing: true, changeset: changeset(current_cell_value(socket)))}
+  # Pressing Enter when not editing will prepare a changeset with the existing value
+  def handle_event("keyup", %{"code" => "Enter"}, %{assigns: %{editing: false}} = socket) do
+    {:noreply,
+     assign(socket,
+       editing: true,
+       changeset: changeset(current_cell_value(socket)),
+       edited_value: current_cell_value(socket)
+     )}
   end
 
+  # Pressing Enter when editing will update the sheet with the new value
+  def handle_event("keyup", %{"code" => "Enter"}, %{assigns: %{editing: true}} = socket) do
+    {:noreply, assign(socket, editing: false, sheet: updated_sheet(socket), edited_value: nil)}
+  end
+
+  # Pressing Escape when editing will discard the changes
+  def handle_event("keyup", %{"code" => "Escape"}, %{assigns: %{editing: true}} = socket) do
+    {:noreply, assign(socket, editing: false, edited_value: nil)}
+  end
+
+  # Navigation with the arrow keys
+
   def handle_event("keydown", %{"code" => "ArrowLeft"}, socket) do
-    [current_column, current_row] = socket.assigns.current_cell
-    {:noreply, assign(socket, current_cell: [max(current_column - 1, 0), current_row])}
+    {:noreply, assign(socket, current_cell: cell(socket, :left), editing: false)}
   end
 
   def handle_event("keydown", %{"code" => "ArrowRight"}, socket) do
-    [current_column, current_row] = socket.assigns.current_cell
-
-    {:noreply,
-     assign(socket,
-       current_cell: [
-         min(current_column + 1, number_of_columns(socket.assigns.sheet) - 1),
-         current_row
-       ]
-     )}
+    {:noreply, assign(socket, current_cell: cell(socket, :right), editing: false)}
   end
 
   def handle_event("keydown", %{"code" => "ArrowUp"}, socket) do
-    [current_column, current_row] = socket.assigns.current_cell
-    {:noreply, assign(socket, current_cell: [current_column, max(current_row - 1, 0)])}
+    {:noreply, assign(socket, current_cell: cell(socket, :up), editing: false)}
   end
 
   def handle_event("keydown", %{"code" => "ArrowDown"}, socket) do
-    [current_column, current_row] = socket.assigns.current_cell
-
-    {:noreply,
-     assign(socket,
-       current_cell: [
-         current_column,
-         min(current_row + 1, number_of_rows(socket.assigns.sheet) - 1)
-       ]
-     )}
+    {:noreply, assign(socket, current_cell: cell(socket, :down), editing: false)}
   end
 
-  def handle_event("keydown", %{"key" => key}, socket) do
+  # Pressing an alpha-numeric key will enter the edit mode
+  def handle_event("keyup", %{"key" => key}, socket) do
     if String.match?(key, ~r/^[[:alnum:]]$/u) do
       {:noreply, assign(socket, editing: true, changeset: changeset(key))}
     else
@@ -109,45 +108,76 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     end
   end
 
-  def handle_event("save", params, socket) do
-    new_value = params["elixcel_live"]["value"]
-    [current_column, current_row] = socket.assigns.current_cell
+  # Fallback
+  def handle_event("keydown", _, socket), do: {:noreply, socket}
 
-    new_row =
-      socket.assigns.sheet
-      |> Enum.at(current_row)
-      |> List.update_at(current_column, fn _ -> new_value end)
+  # Form events
 
-    new_sheet = socket.assigns.sheet |> List.update_at(current_row, fn _ -> new_row end)
-    {:noreply, assign(socket, editing: false, sheet: new_sheet)}
+  # Save the edited value in the state
+  def handle_event("change", params, socket) do
+    {:noreply, assign(socket, edited_value: params["elixcel_live"]["value"])}
   end
 
-  def handle_event("validate", _, socket), do: {:noreply, socket}
+  # Just ignore the save event - it exists primarly to prevent a real form submit on Enter
+  def handle_event("save", params, socket), do: {:noreply, socket}
 
   # Other events
 
+  # Goto a cell when it is clicked
   def handle_event("goto-cell", %{"column" => column, "row" => row}, socket) do
     {:noreply, assign(socket, current_cell: [String.to_integer(column), String.to_integer(row)])}
   end
 
+  # Add a row to the sheet
   def handle_event("add-row", _, socket) do
     new_row = List.duplicate(nil, number_of_columns(socket.assigns.sheet))
     {:noreply, assign(socket, sheet: socket.assigns.sheet ++ [new_row])}
   end
 
+  # Add a column to the sheet
   def handle_event("add-col", _, socket) do
     sheet = socket.assigns.sheet |> Enum.map(fn row -> row ++ [nil] end)
     {:noreply, assign(socket, sheet: sheet)}
   end
 
   # Private functions
+
   defp changeset(value) do
     %LiveViewDemoWeb.ElixcelLive{} |> Ecto.Changeset.cast(%{value: value}, [:value])
+  end
+
+  defp updated_sheet(socket) do
+    [current_column, current_row] = socket.assigns.current_cell
+
+    new_row =
+      socket.assigns.sheet
+      |> Enum.at(current_row)
+      |> List.update_at(current_column, fn _ -> socket.assigns[:edited_value] end)
+
+    socket.assigns.sheet |> List.update_at(current_row, fn _ -> new_row end)
   end
 
   defp current_cell_value(socket) do
     [current_column, current_row] = socket.assigns.current_cell
     socket.assigns.sheet |> Enum.at(current_row) |> Enum.at(current_column)
+  end
+
+  defp cell(socket, direction) do
+    [current_column, current_row] = socket.assigns.current_cell
+
+    case direction do
+      :left ->
+        [max(current_column - 1, 0), current_row]
+
+      :right ->
+        [min(current_column + 1, number_of_columns(socket.assigns.sheet) - 1), current_row]
+
+      :up ->
+        [current_column, max(current_row - 1, 0)]
+
+      :down ->
+        [current_column, min(current_row + 1, number_of_rows(socket.assigns.sheet) - 1)]
+    end
   end
 
   defp rows(sheet), do: Enum.with_index(sheet)
