@@ -3,6 +3,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   use Phoenix.HTML
 
   use Ecto.Schema
+
   embedded_schema do
     field :value, :string
   end
@@ -50,10 +51,13 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   def mount(_session, socket) do
-    {:ok, assign(socket, sheet: [[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]], current_cell: [0, 0], editing: false)}
+    {:ok,
+     assign(socket,
+       sheet: [[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]],
+       current_cell: [0, 0],
+       editing: false
+     )}
   end
-
-
 
   # Ignore navigation keydown events when editing
   def handle_event("keydown", _, %{assigns: %{editing: true}} = socket), do: {:noreply, socket}
@@ -70,7 +74,14 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   def handle_event("keydown", %{"code" => "ArrowRight"}, socket) do
     [current_column, current_row] = socket.assigns.current_cell
-    {:noreply, assign(socket, current_cell: [min(current_column + 1, number_of_columns(socket.assigns.sheet) - 1), current_row])}
+
+    {:noreply,
+     assign(socket,
+       current_cell: [
+         min(current_column + 1, number_of_columns(socket.assigns.sheet) - 1),
+         current_row
+       ]
+     )}
   end
 
   def handle_event("keydown", %{"code" => "ArrowUp"}, socket) do
@@ -80,7 +91,14 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   def handle_event("keydown", %{"code" => "ArrowDown"}, socket) do
     [current_column, current_row] = socket.assigns.current_cell
-    {:noreply, assign(socket, current_cell: [current_column, min(current_row + 1, number_of_rows(socket.assigns.sheet) - 1)])}
+
+    {:noreply,
+     assign(socket,
+       current_cell: [
+         current_column,
+         min(current_row + 1, number_of_rows(socket.assigns.sheet) - 1)
+       ]
+     )}
   end
 
   def handle_event("keydown", %{"key" => key}, socket) do
@@ -94,7 +112,12 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   def handle_event("save", params, socket) do
     new_value = params["elixcel_live"]["value"]
     [current_column, current_row] = socket.assigns.current_cell
-    new_row = socket.assigns.sheet |> Enum.at(current_row) |> List.update_at(current_column, fn _ -> new_value end)
+
+    new_row =
+      socket.assigns.sheet
+      |> Enum.at(current_row)
+      |> List.update_at(current_column, fn _ -> new_value end)
+
     new_sheet = socket.assigns.sheet |> List.update_at(current_row, fn _ -> new_row end)
     {:noreply, assign(socket, editing: false, sheet: new_sheet)}
   end
@@ -116,7 +139,6 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     sheet = socket.assigns.sheet |> Enum.map(fn row -> row ++ [nil] end)
     {:noreply, assign(socket, sheet: sheet)}
   end
-
 
   # Private functions
   defp changeset(value) do
