@@ -10,7 +10,8 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   def render(assigns) do
     ~L"""
-    <table phx-keydown="keydown" phx-keyup="keyup" phx-target="window">
+    <h1>Elixcel</h1>
+    <table phx-keydown="keydown" phx-keyup="keyup" phx-target="window" class="table table-bordered">
       <tbody>
         <tr>
           <td></td>
@@ -37,15 +38,15 @@ defmodule LiveViewDemoWeb.ElixcelLive do
       </tbody>
     </table>
 
-    <a href="#" phx-click="add-row">Add Row</a><br>
-    <a href="#" phx-click="add-col">Add Column</a>
+    <div class="row">
+      <a href="#" phx-click="add-row" class="btn btn-outline-success ml-3">Add Row</a><br>
+      <a href="#" phx-click="add-col" class="btn btn-outline-success ml-2">Add Column</a>
+    </div>
 
     <style>
-      td { border: 0.5px solid #bbb; width: 120px; }
       td.border { background-color: #eee; text-align: center; }
-      td.border.selected { background-color: #ddd;  }
-      td.active { border-color: #4b89ff; background-color: #dff4fb; }
-      form, input { padding: 0 !important; margin: 0 !important; border: none !important; height: inherit !important; width: inherit !important; font-size: 1em; }
+      td.border.selected { background-color: #ddd; }
+      td.active { background-color: #dff4fb; }
     </style>
     """
   end
@@ -53,7 +54,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   def mount(_session, socket) do
     {:ok,
      assign(socket,
-       sheet: [[nil, nil, nil], [nil, nil, nil], [nil, nil, nil]],
+       sheet: Enum.map((1..5), fn x -> [nil, nil, nil, nil, nil, nil] end),
        current_cell: [0, 0],
        editing: false
      )}
