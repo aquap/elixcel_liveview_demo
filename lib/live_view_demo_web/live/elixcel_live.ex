@@ -10,7 +10,13 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   def render(assigns) do
     ~L"""
-    <h1>Elixcel</h1>
+
+    <h1 class="float-left">Elixcel</h1>
+    <div class="float-right row mt-3">
+      <a href="#" phx-click="add-row" class="btn btn-outline-success btn-sm">Add Row</a><br>
+      <a href="#" phx-click="add-col" class="btn btn-outline-success btn-sm ml-2 mr-3">Add Column</a>
+    </div>
+
     <table phx-keydown="keydown" phx-keyup="keyup" phx-target="window" class="table table-bordered">
       <tbody>
         <tr>
@@ -37,11 +43,6 @@ defmodule LiveViewDemoWeb.ElixcelLive do
         <% end %>
       </tbody>
     </table>
-
-    <div class="row">
-      <a href="#" phx-click="add-row" class="btn btn-outline-success ml-3">Add Row</a><br>
-      <a href="#" phx-click="add-col" class="btn btn-outline-success ml-2">Add Column</a>
-    </div>
 
     <style>
       td.border { background-color: #eee; text-align: center; }
