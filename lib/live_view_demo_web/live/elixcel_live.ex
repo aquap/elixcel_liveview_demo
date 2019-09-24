@@ -21,21 +21,21 @@ defmodule LiveViewDemoWeb.ElixcelLive do
       <tbody>
         <tr>
           <td></td>
-          <%= for {_col, col_index} <- cols(@sheet) do %>
-            <td class="border <%= selected_col_class(col_index, @current_cell) %>"><%= List.to_string([?A + col_index]) %></td>
+          <%= for col <- (1..@cols) do %>
+            <td class="border <%= selected_col_class(col, @current_cell) %>"><%= List.to_string([?A + col]) %></td>
           <% end %>
         </tr>
-        <%= for {row, row_index} <- rows(@sheet) do %>
+        <%= for row <- (1..@rows) do %>
           <tr>
-            <td class="border <%= selected_row_class(row_index, @current_cell) %>"><%= row_index + 1 %></td>
-            <%= for {cell, column_index} <- cells(row) do %>
-              <td phx-click="goto-cell" phx-value-column="<%= column_index %>" phx-value-row="<%= row_index %>" class="<%= active_class(column_index, row_index, @current_cell) %>">
-                <%= if @editing && [column_index, row_index] == @current_cell && @changeset do %>
+            <td class="border <%= selected_row_class(row, @current_cell) %>"><%= row %></td>
+            <%= for col <- (1..@cols) do %>
+              <td phx-click="goto-cell" phx-value-column="<%= col %>" phx-value-row="<%= row %>" class="<%= active_class(col, row, @current_cell) %>">
+                <%= if @editing && [col, row] == @current_cell && @changeset do %>
                   <%= f = form_for @changeset, "#", [phx_change: :change,  phx_submit: :save] %>
                     <%= text_input f, :value, "phx-hook": "SetFocus" %>
                   </form>
                 <% else %>
-                  <%= cell %>
+                  <%= cell_value(@cells, col, row) %>
                 <% end %>
               </td>
             <% end %>
@@ -53,12 +53,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   def mount(_session, socket) do
-    {:ok,
-     assign(socket,
-       sheet: Enum.map((1..5), fn x -> [nil, nil, nil, nil, nil, nil] end),
-       current_cell: [0, 0],
-       editing: false
-     )}
+    {:ok, assign(socket, rows: 6, cols: 6, current_cell: [1, 1], cells: %{}, editing: false)}
   end
 
   # Keyboard events
@@ -75,7 +70,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   # Pressing Enter when editing will update the sheet with the new value
   def handle_event("keyup", %{"code" => "Enter"}, %{assigns: %{editing: true}} = socket) do
-    {:noreply, assign(socket, editing: false, sheet: updated_sheet(socket), edited_value: nil)}
+    {:noreply, assign(socket, editing: false, cells: updated_cells(socket), edited_value: nil)}
   end
 
   # Pressing Escape when editing will discard the changes
@@ -106,7 +101,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
      assign(socket,
        current_cell: move(:left, socket),
        editing: false,
-       sheet: updated_sheet(socket),
+       cells: updated_cells(socket),
        edited_value: nil
      )}
   end
@@ -116,7 +111,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
      assign(socket,
        current_cell: move(:right, socket),
        editing: false,
-       sheet: updated_sheet(socket),
+       cells: updated_cells(socket),
        edited_value: nil
      )}
   end
@@ -126,7 +121,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
      assign(socket,
        current_cell: move(:up, socket),
        editing: false,
-       sheet: updated_sheet(socket),
+       cells: updated_cells(socket),
        edited_value: nil
      )}
   end
@@ -136,7 +131,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
      assign(socket,
        current_cell: move(:down, socket),
        editing: false,
-       sheet: updated_sheet(socket),
+       cells: updated_cells(socket),
        edited_value: nil
      )}
   end
@@ -172,14 +167,12 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   # Add a row to the sheet
   def handle_event("add-row", _, socket) do
-    new_row = List.duplicate(nil, number_of_columns(socket.assigns.sheet))
-    {:noreply, assign(socket, sheet: socket.assigns.sheet ++ [new_row])}
+    {:noreply, assign(socket, rows: socket.assigns.rows + 1)}
   end
 
   # Add a column to the sheet
   def handle_event("add-col", _, socket) do
-    sheet = socket.assigns.sheet |> Enum.map(fn row -> row ++ [nil] end)
-    {:noreply, assign(socket, sheet: sheet)}
+    {:noreply, assign(socket, cols: socket.assigns.cols + 1)}
   end
 
   # Private functions
@@ -188,20 +181,18 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     %LiveViewDemoWeb.ElixcelLive{} |> Ecto.Changeset.cast(%{value: value}, [:value])
   end
 
-  defp updated_sheet(socket) do
+  defp updated_cells(socket) do
     [current_column, current_row] = socket.assigns.current_cell
+    socket.assigns.cells |> Map.put([current_column, current_row], socket.assigns[:edited_value])
+  end
 
-    new_row =
-      socket.assigns.sheet
-      |> Enum.at(current_row)
-      |> List.update_at(current_column, fn _ -> socket.assigns[:edited_value] end)
-
-    socket.assigns.sheet |> List.update_at(current_row, fn _ -> new_row end)
+  defp cell_value(cells, col, row) do
+    cells[[col, row]]
   end
 
   defp current_cell_value(socket) do
     [current_column, current_row] = socket.assigns.current_cell
-    socket.assigns.sheet |> Enum.at(current_row) |> Enum.at(current_column)
+    cell_value(socket.assigns.cells, current_column, current_row)
   end
 
   defp move(direction, socket) do
@@ -209,25 +200,18 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
     case direction do
       :left ->
-        [max(current_column - 1, 0), current_row]
+        [max(current_column - 1, 1), current_row]
 
       :right ->
-        [min(current_column + 1, number_of_columns(socket.assigns.sheet) - 1), current_row]
+        [min(current_column + 1, socket.assigns.cols), current_row]
 
       :up ->
-        [current_column, max(current_row - 1, 0)]
+        [current_column, max(current_row - 1, 1)]
 
       :down ->
-        [current_column, min(current_row + 1, number_of_rows(socket.assigns.sheet) - 1)]
+        [current_column, min(current_row + 1, socket.assigns.rows)]
     end
   end
-
-  defp rows(sheet), do: Enum.with_index(sheet)
-  defp cols(sheet), do: sheet |> List.first() |> Enum.with_index()
-  defp cells(row), do: Enum.with_index(row)
-
-  defp number_of_rows(sheet), do: sheet |> length
-  defp number_of_columns(sheet), do: sheet |> List.first() |> length
 
   defp active_class(column, row, [column, row]), do: "active"
   defp active_class(_, _, _), do: ""
