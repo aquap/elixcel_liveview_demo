@@ -29,7 +29,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
           <tr>
             <td class="border <%= selected_row_class(row, @current_cell) %>"><%= row %></td>
             <%= for col <- (1..@cols) do %>
-              <td phx-click="goto-cell" phx-value-column="<%= col %>" phx-value-row="<%= row %>" class="<%= active_class(col, row, @current_cell) %>">
+              <td phx-click="goto-cell" phx-value-column="<%= col %>" phx-value-row="<%= row %>" class="<%= active_class(col, row, @current_cell) %> <%= @editing && [col, row] == @current_cell && "editing" %>">
                 <%= if @editing && [col, row] == @current_cell && @changeset do %>
                   <%= f = form_for @changeset, "#", [phx_change: :change,  phx_submit: :save] %>
                     <%= text_input f, :value, "phx-hook": "SetFocus" %>
@@ -45,9 +45,12 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     </table>
 
     <style>
+      table { table-layout: fixed; }
       td.border { background-color: #eee; text-align: center; }
       td.border.selected { background-color: #ddd; }
       td.active { background-color: #dff4fb; }
+      td.active.editing { background-color: white; }
+      td input { border: none; }
     </style>
     """
   end
