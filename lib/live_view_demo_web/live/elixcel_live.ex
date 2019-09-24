@@ -12,6 +12,10 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     ~L"""
 
     <h1 class="float-left">Elixcel</h1>
+    <div class="float-left row mt-3 ml-5">
+      <a href="#" phx-click="bold" class="btn btn-outline-secondary btn-sm"><strong>Bold</strong></a>
+      <a href="#" phx-click="italics" class="btn btn-outline-secondary btn-sm ml-1"><em>Italics</em></a>
+    </div>
     <div class="float-right row mt-3">
       <a href="#" phx-click="add-row" class="btn btn-outline-success btn-sm">Add Row</a><br>
       <a href="#" phx-click="add-col" class="btn btn-outline-success btn-sm ml-2 mr-3">Add Column</a>
@@ -35,7 +39,14 @@ defmodule LiveViewDemoWeb.ElixcelLive do
                     <%= text_input f, :value, "phx-hook": "SetFocus" %>
                   </form>
                 <% else %>
-                  <%= cell_value(@cells, col, row) %>
+                  <%= cond do %>
+                  <%= cell_bold?(@cells, col, row) -> %>
+                    <strong><%= cell_value(@cells, col, row) %></strong>
+                  <%= cell_italics?(@cells, col, row) -> %>
+                    <em><%= cell_value(@cells, col, row) %></em>
+                  <% true -> %>
+                    <%= cell_value(@cells, col, row) %>
+                  <% end %>
                 <% end %>
               </td>
             <% end %>
@@ -159,7 +170,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   # Just ignore the save event - it exists primarly to prevent a real form submit on Enter
-  def handle_event("save", params, socket), do: {:noreply, socket}
+  def handle_event("save", _params, socket), do: {:noreply, socket}
 
   # Other events
 
@@ -178,6 +189,18 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     {:noreply, assign(socket, cols: socket.assigns.cols + 1)}
   end
 
+  def handle_event("bold", _, socket) do
+    [current_column, current_row] = socket.assigns.current_cell
+    cells = socket.assigns.cells |> Map.put([current_column, current_row], %{value: current_cell_value(socket), format: %{ bold: true }})
+    {:noreply, assign(socket, cells: cells)}
+  end
+
+  def handle_event("italics", _, socket) do
+    [current_column, current_row] = socket.assigns.current_cell
+    cells = socket.assigns.cells |> Map.put([current_column, current_row], %{value: current_cell_value(socket), format: %{ italics: true }})
+    {:noreply, assign(socket, cells: cells)}
+  end
+
   # Private functions
 
   defp changeset(value) do
@@ -186,11 +209,19 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   defp updated_cells(socket) do
     [current_column, current_row] = socket.assigns.current_cell
-    socket.assigns.cells |> Map.put([current_column, current_row], socket.assigns[:edited_value])
+    socket.assigns.cells |> Map.put([current_column, current_row], %{value: socket.assigns[:edited_value]})
   end
 
   defp cell_value(cells, col, row) do
-    cells[[col, row]]
+    cells[[col, row]][:value]
+  end
+
+  defp cell_bold?(cells, col, row) do
+    cells[[col, row]][:format][:bold]
+  end
+
+  defp cell_italics?(cells, col, row) do
+    cells[[col, row]][:format][:italics]
   end
 
   defp current_cell_value(socket) do
