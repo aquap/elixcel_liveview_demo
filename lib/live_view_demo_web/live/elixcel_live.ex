@@ -42,7 +42,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
                   <%= cond do %>
                   <%= cell_bold?(@cells, col, row) -> %>
                     <strong><%= cell_value(@cells, col, row) %></strong>
-                  <%= cell_italics?(@cells, col, row) -> %>
+                  <% cell_italics?(@cells, col, row) -> %>
                     <em><%= cell_value(@cells, col, row) %></em>
                   <% true -> %>
                     <%= cell_value(@cells, col, row) %>
@@ -189,6 +189,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     {:noreply, assign(socket, cols: socket.assigns.cols + 1)}
   end
 
+  # Formatting events
   def handle_event("bold", _, socket) do
     [current_column, current_row] = socket.assigns.current_cell
     cells = socket.assigns.cells |> Map.put([current_column, current_row], %{value: current_cell_value(socket), format: %{ bold: true }})
