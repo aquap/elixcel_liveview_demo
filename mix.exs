@@ -20,7 +20,7 @@ defmodule LiveViewDemo.MixProject do
   def application do
     [
       mod: {LiveViewDemo.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :abacus]
     ]
   end
 
@@ -45,7 +45,8 @@ defmodule LiveViewDemo.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:calendar, "~> 1.0"},
-      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
+      {:abacus, "~> 0.4.2"}
     ]
   end
 
