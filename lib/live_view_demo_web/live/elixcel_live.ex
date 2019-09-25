@@ -41,11 +41,11 @@ defmodule LiveViewDemoWeb.ElixcelLive do
                 <% else %>
                   <%= cond do %>
                   <%= cell_bold?(@cells, col, row) -> %>
-                    <strong><%= cell_value(@cells, col, row) %></strong>
+                    <strong><%= computed_cell_value(@cells, col, row) %></strong>
                   <% cell_italics?(@cells, col, row) -> %>
-                    <em><%= cell_value(@cells, col, row) %></em>
+                    <em><%= computed_cell_value(@cells, col, row) %></em>
                   <% true -> %>
-                    <%= cell_value(@cells, col, row) %>
+                    <%= computed_cell_value(@cells, col, row) %>
                   <% end %>
                 <% end %>
               </td>
@@ -228,6 +228,23 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   defp current_cell_value(socket) do
     [current_column, current_row] = socket.assigns.current_cell
     cell_value(socket.assigns.cells, current_column, current_row)
+  end
+
+  defp computed_cell_value(cells, col, row) do
+    value = cells[[col, row]][:value] || ""
+    computed_cell_value(cells, col, row, String.starts_with?(value, "="))
+  end
+
+  defp computed_cell_value(cells, col, row, true) do
+    value = String.replace(cells[[col, row]][:value], "=", "")
+    case Abacus.eval(value) do
+      {:ok, result} -> result
+      {:error, _} -> "#ERR"
+    end
+  end
+
+  defp computed_cell_value(cells, col, row, false) do
+    cell_value(cells, col, row)
   end
 
   defp move(direction, socket) do
