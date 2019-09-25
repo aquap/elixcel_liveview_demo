@@ -26,7 +26,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
         <tr>
           <td></td>
           <%= for col <- (1..@cols) do %>
-            <td class="border <%= selected_col_class(col, @current_cell) %>"><%= List.to_string([?A + col]) %></td>
+            <td class="border <%= selected_col_class(col, @current_cell) %>"><%= List.to_string([?A + col - 1]) %></td>
           <% end %>
         </tr>
         <%= for row <- (1..@rows) do %>
@@ -235,9 +235,21 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     computed_cell_value(cells, col, row, String.starts_with?(value, "="))
   end
 
+  defp computed_cell_value(cells, ref) do
+    [letter | digits] = String.codepoints(ref)
+    letter = letter |> String.capitalize()
+    col = " ABCDEFGHIJKLMNOPQRSTUVWXYZ" |> String.codepoints() |> Enum.find_index(&(&1 == letter))
+    row = digits |> Enum.join("") |> String.to_integer()
+    computed_cell_value(cells, col, row)
+  end
+
   defp computed_cell_value(cells, col, row, true) do
     value = String.replace(cells[[col, row]][:value], "=", "")
-    case Abacus.eval(value) do
+
+    references = Regex.scan(~r/[A-Za-z][0-9]+/, value) |> Enum.map(fn x -> Enum.at(x, 0) end)
+    scope = references |> Enum.reduce(%{}, fn ref, acc -> Map.put(acc, ref, String.to_integer(computed_cell_value(cells, ref))) end)
+
+    case Abacus.eval(value, scope) do
       {:ok, result} -> result
       {:error, _} -> "#ERR"
     end
