@@ -150,6 +150,8 @@ defmodule LiveViewDemoWeb.ElixcelLive do
      )}
   end
 
+  def handle_event("keydown", %{"key" => "b", "metaKey" => true}, %{assigns: %{editing: false}} = socket), do: toggle_bold(socket)
+
   # Pressing an alpha-numeric key will enter the edit mode
   def handle_event("keyup", %{"key" => key}, socket) do
     if String.match?(key, ~r/^[[:alnum:]]$/u) do
@@ -190,11 +192,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   # Formatting events
-  def handle_event("bold", _, socket) do
-    [current_column, current_row] = socket.assigns.current_cell
-    cells = socket.assigns.cells |> Map.put([current_column, current_row], %{value: current_cell_value(socket), format: %{ bold: true }})
-    {:noreply, assign(socket, cells: cells)}
-  end
+  def handle_event("bold", _, socket), do: toggle_bold(socket)
 
   def handle_event("italics", _, socket) do
     [current_column, current_row] = socket.assigns.current_cell
@@ -215,6 +213,13 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   defp cell_value(cells, col, row) do
     cells[[col, row]][:value]
+  end
+
+  def toggle_bold(socket) do
+    [current_column, current_row] = socket.assigns.current_cell
+    bold = socket.assigns.cells |> get_in([[current_column, current_row], :format, :bold])
+    cells = socket.assigns.cells |> Map.put([current_column, current_row], %{value: current_cell_value(socket), format: %{ bold: !bold }})
+    {:noreply, assign(socket, cells: cells)}
   end
 
   defp cell_bold?(cells, col, row) do

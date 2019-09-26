@@ -20,12 +20,19 @@ import { Socket } from "phoenix"
 import LiveSocket from "phoenix_live_view"
 
 let Hooks = {}
+
 Hooks.SetFocus = {
     mounted() {
       this.el.focus();
       this.el.selectionStart = this.el.selectionEnd = this.el.value.length;
     }
 }
+
+document.addEventListener("keydown", event => {
+  if (event.key == 'ArrowUp' || event.key == 'ArrowDown' || event.key == 'ArrowLeft' || event.key == 'ArrowRight' || (event.metaKey && event.key == 'b')) {
+    event.preventDefault();
+  } 
+});
 
 let liveSocket = new LiveSocket("/live", Socket, { hooks: Hooks })
 liveSocket.connect()
