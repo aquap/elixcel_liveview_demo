@@ -111,43 +111,19 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   # Navigation with the arrow keys - when editing we save the edited value and move
   def handle_event("keyup", %{"code" => "ArrowLeft"}, %{assigns: %{editing: true}} = socket) do
-    {:noreply,
-     assign(socket,
-       current_cell: move(:left, socket),
-       editing: false,
-       cells: updated_cells(socket),
-       edited_value: nil
-     )}
+    socket |> save_and_move(:left)
   end
 
   def handle_event("keyup", %{"code" => "ArrowRight"}, %{assigns: %{editing: true}} = socket) do
-    {:noreply,
-     assign(socket,
-       current_cell: move(:right, socket),
-       editing: false,
-       cells: updated_cells(socket),
-       edited_value: nil
-     )}
+    socket |> save_and_move(:right)
   end
 
   def handle_event("keyup", %{"code" => "ArrowUp"}, %{assigns: %{editing: true}} = socket) do
-    {:noreply,
-     assign(socket,
-       current_cell: move(:up, socket),
-       editing: false,
-       cells: updated_cells(socket),
-       edited_value: nil
-     )}
+    socket |> save_and_move(:up)
   end
 
   def handle_event("keyup", %{"code" => "ArrowDown"}, %{assigns: %{editing: true}} = socket) do
-    {:noreply,
-     assign(socket,
-       current_cell: move(:down, socket),
-       editing: false,
-       cells: updated_cells(socket),
-       edited_value: nil
-     )}
+    socket |> save_and_move(:down)
   end
 
   def handle_event("keydown", %{"key" => "b", "metaKey" => true}, %{assigns: %{editing: false}} = socket) do
@@ -304,6 +280,17 @@ defmodule LiveViewDemoWeb.ElixcelLive do
         [current_column, min(current_row + 1, socket.assigns.rows)]
     end
   end
+
+  defp save_and_move(socket, direction) do
+    {:noreply,
+     assign(socket,
+       current_cell: move(direction, socket),
+       editing: false,
+       cells: updated_cells(socket),
+       edited_value: nil
+     )}
+  end
+
 
   defp active_class(column, row, [column, row]), do: "active"
   defp active_class(_, _, _), do: ""
