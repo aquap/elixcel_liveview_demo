@@ -13,7 +13,9 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   @arrow_up %{"code" => "ArrowUp"}
   @arrow_down %{"code" => "ArrowDown"}
   @meta_b %{"key" => "b", "metaKey" => true}
+  @ctrl_b %{"key" => "b", "ctrlKey" => true}
   @meta_i %{"key" => "i", "metaKey" => true}
+  @ctrl_i %{"key" => "i", "ctrlKey" => true}
 
   def render(assigns) do
     ~L"""
@@ -140,9 +142,17 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     toggle_format(socket, :bold)
   end
 
+  def handle_event("keyup", @ctrl_b, %{assigns: %{editing: false}} = socket) do
+    toggle_format(socket, :bold)
+  end
+
   def handle_event("italics", _, socket), do: toggle_format(socket, :italics)
 
   def handle_event("keydown", @meta_i, %{assigns: %{editing: false}} = socket) do
+    toggle_format(socket, :italics)
+  end
+
+  def handle_event("keyup", @ctrl_i, %{assigns: %{editing: false}} = socket) do
     toggle_format(socket, :italics)
   end
 
