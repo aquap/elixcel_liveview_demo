@@ -85,6 +85,15 @@ defmodule LiveViewDemoWeb.ElixcelLive do
       </tbody>
     </table>
 
+    <ul>
+      <li>Navigate using the arrow keys</li>
+      <li>Enter a string or a number by using the keyboard</li>
+      <li>Edit an existing cell by pressing Enter</li>
+      <li>Discard changes to a cell by pressing Escape</li>
+      <li>Toggle <strong>bold</strong>/<em>italics</em> with Cmd+b/Ctrl+b or Cmd+i/Ctrl+i</li>
+      <li>Mathematical expression must start with an equal(=) sign and can reference other cells ie. <code>= B2 * C2 + 10</code></li>
+    </ul>
+
     <style>
       table { table-layout: fixed; }
       td.border { background-color: #eee; text-align: center; }
