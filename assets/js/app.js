@@ -34,7 +34,8 @@ document.addEventListener("keydown", event => {
     event.key == "ArrowDown" ||
     event.key == "ArrowLeft" ||
     event.key == "ArrowRight" ||
-    (event.metaKey && event.key == "b")
+    (event.metaKey && event.key == "b") ||
+    (event.metaKey && event.key == "i")
   ) {
     event.preventDefault();
   }
