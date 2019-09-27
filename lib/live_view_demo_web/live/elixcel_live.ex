@@ -260,6 +260,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   defp computed_cell_value(cells, col, row, true) do
     value = String.replace(cells[[col, row]][:value], "=", "")
 
+    # Given the string "A1 + B2" this will turn it into an array of references ie. ["A1", "B2"]
     references = Regex.scan(~r/[A-Za-z][0-9]+/, value) |> Enum.map(fn x -> Enum.at(x, 0) end)
 
     scope =
