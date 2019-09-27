@@ -88,7 +88,13 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   def mount(_session, socket) do
     {:ok,
-     assign(socket, rows: 6, cols: 6, current_cell: [1, 1], cells: ElixcelLive.DemoData.cells(), editing: false)}
+     assign(socket,
+       rows: 6,
+       cols: 6,
+       current_cell: [1, 1],
+       cells: ElixcelLive.DemoData.cells(),
+       editing: false
+     )}
   end
 
   # Keyboard events

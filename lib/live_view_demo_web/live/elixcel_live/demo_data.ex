@@ -1,5 +1,4 @@
 defmodule ElixcelLive.DemoData do
-
   @initial_cells %{
     [2, 1] => %{value: "Quantity", format: %{bold: true}},
     [3, 1] => %{value: "Price", format: %{bold: true}},
@@ -22,5 +21,4 @@ defmodule ElixcelLive.DemoData do
   def cells() do
     @initial_cells
   end
-
 end
