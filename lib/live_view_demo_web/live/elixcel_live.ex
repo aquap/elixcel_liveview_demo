@@ -238,7 +238,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     cells[[col, row]][:value]
   end
 
-  def toggle_format(socket, format) do
+  defp toggle_format(socket, format) do
     [current_column, current_row] = socket.assigns.current_cell
 
     format_value =
@@ -299,7 +299,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     cell_value(cells, col, row)
   end
 
-  def ref_to_col_row(ref) do
+  defp ref_to_col_row(ref) do
     [letter | digits] = String.codepoints(ref)
     letter = letter |> String.capitalize()
     col = " ABCDEFGHIJKLMNOPQRSTUVWXYZ" |> String.codepoints() |> Enum.find_index(&(&1 == letter))
