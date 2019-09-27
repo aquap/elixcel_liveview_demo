@@ -46,6 +46,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
       <a href="#" phx-click="italics" class="btn btn-outline-secondary btn-sm ml-1"><em>Italics</em></a>
     </div>
     <div class="float-right row mt-3">
+      <a href="#" phx-click="clear-sheet" class="btn btn-outline-secondary btn-sm mr-4">Clear sheet</a>
       <a href="#" phx-click="add-row" class="btn btn-outline-success btn-sm">Add Row</a><br>
       <a href="#" phx-click="add-col" class="btn btn-outline-success btn-sm ml-2 mr-3">Add Column</a>
     </div>
@@ -213,6 +214,11 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   # Goto a cell when it is clicked
   def handle_event("goto-cell", %{"column" => column, "row" => row}, socket) do
     {:noreply, assign(socket, current_cell: [String.to_integer(column), String.to_integer(row)])}
+  end
+
+  # Clear the sheet
+  def handle_event("clear-sheet", _, socket) do
+    {:noreply, assign(socket, cells: %{})}
   end
 
   # Add a row to the sheet
