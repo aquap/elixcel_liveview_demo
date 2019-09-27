@@ -12,6 +12,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   @arrow_right %{"code" => "ArrowRight"}
   @arrow_up %{"code" => "ArrowUp"}
   @arrow_down %{"code" => "ArrowDown"}
+  @tab %{"code" => "Tab"}
   @meta_b %{"key" => "b", "metaKey" => true}
   @ctrl_b %{"key" => "b", "ctrlKey" => true}
   @meta_i %{"key" => "i", "metaKey" => true}
@@ -118,6 +119,10 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     socket |> move(:down)
   end
 
+  def handle_event("keydown", @tab, %{assigns: %{editing: false}} = socket) do
+    socket |> move(:right)
+  end
+
   # Navigation with the arrow keys - when editing we save the edited value and move
   def handle_event("keyup", @arrow_left, %{assigns: %{editing: true}} = socket) do
     socket |> save_and_move(:left)
@@ -133,6 +138,10 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   def handle_event("keyup", @arrow_down, %{assigns: %{editing: true}} = socket) do
     socket |> save_and_move(:down)
+  end
+
+  def handle_event("keyup", @tab, %{assigns: %{editing: true}} = socket) do
+    socket |> save_and_move(:right)
   end
 
   # Formatting events
