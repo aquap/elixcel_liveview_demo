@@ -94,19 +94,19 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   # Navigation with the arrow keys - when not editing we just move
   def handle_event("keydown", %{"code" => "ArrowLeft"}, %{assigns: %{editing: false}} = socket) do
-    {:noreply, assign(socket, current_cell: move(:left, socket))}
+    socket |> move(:left)
   end
 
   def handle_event("keydown", %{"code" => "ArrowRight"}, %{assigns: %{editing: false}} = socket) do
-    {:noreply, assign(socket, current_cell: move(:right, socket))}
+    socket |> move(:right)
   end
 
   def handle_event("keydown", %{"code" => "ArrowUp"}, %{assigns: %{editing: false}} = socket) do
-    {:noreply, assign(socket, current_cell: move(:up, socket))}
+    socket |> move(:up)
   end
 
   def handle_event("keydown", %{"code" => "ArrowDown"}, %{assigns: %{editing: false}} = socket) do
-    {:noreply, assign(socket, current_cell: move(:down, socket))}
+    socket |> move(:down)
   end
 
   # Navigation with the arrow keys - when editing we save the edited value and move
@@ -263,9 +263,16 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     [col, row]
   end
 
-  defp move(direction, socket) do
-    [current_column, current_row] = socket.assigns.current_cell
+  defp move(socket, direction) do
+    {:noreply, assign(socket, current_cell: new_current_cell(socket, direction))}
+  end
 
+  defp save_and_move(socket, direction) do
+    {:noreply, assign(socket, current_cell: new_current_cell(socket, direction), editing: false, cells: updated_cells(socket), edited_value: nil)}
+  end
+
+  defp new_current_cell(socket, direction) do
+    [current_column, current_row] = socket.assigns.current_cell
     case direction do
       :left ->
         [max(current_column - 1, 1), current_row]
@@ -279,16 +286,6 @@ defmodule LiveViewDemoWeb.ElixcelLive do
       :down ->
         [current_column, min(current_row + 1, socket.assigns.rows)]
     end
-  end
-
-  defp save_and_move(socket, direction) do
-    {:noreply,
-     assign(socket,
-       current_cell: move(direction, socket),
-       editing: false,
-       cells: updated_cells(socket),
-       edited_value: nil
-     )}
   end
 
 
