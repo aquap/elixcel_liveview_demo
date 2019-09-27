@@ -8,6 +8,13 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     field :value, :string
   end
 
+  @arrow_left %{"code" => "ArrowLeft"}
+  @arrow_right %{"code" => "ArrowRight"}
+  @arrow_up %{"code" => "ArrowUp"}
+  @arrow_down %{"code" => "ArrowDown"}
+  @meta_b %{"key" => "b", "metaKey" => true}
+  @meta_i %{"key" => "i", "metaKey" => true}
+
   def render(assigns) do
     ~L"""
 
@@ -93,57 +100,49 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   # Navigation with the arrow keys - when not editing we just move
-  def handle_event("keydown", %{"code" => "ArrowLeft"}, %{assigns: %{editing: false}} = socket) do
+  def handle_event("keydown", @arrow_left, %{assigns: %{editing: false}} = socket) do
     socket |> move(:left)
   end
 
-  def handle_event("keydown", %{"code" => "ArrowRight"}, %{assigns: %{editing: false}} = socket) do
+  def handle_event("keydown", @arrow_right, %{assigns: %{editing: false}} = socket) do
     socket |> move(:right)
   end
 
-  def handle_event("keydown", %{"code" => "ArrowUp"}, %{assigns: %{editing: false}} = socket) do
+  def handle_event("keydown", @arrow_up, %{assigns: %{editing: false}} = socket) do
     socket |> move(:up)
   end
 
-  def handle_event("keydown", %{"code" => "ArrowDown"}, %{assigns: %{editing: false}} = socket) do
+  def handle_event("keydown", @arrow_down, %{assigns: %{editing: false}} = socket) do
     socket |> move(:down)
   end
 
   # Navigation with the arrow keys - when editing we save the edited value and move
-  def handle_event("keyup", %{"code" => "ArrowLeft"}, %{assigns: %{editing: true}} = socket) do
+  def handle_event("keyup", @arrow_left, %{assigns: %{editing: true}} = socket) do
     socket |> save_and_move(:left)
   end
 
-  def handle_event("keyup", %{"code" => "ArrowRight"}, %{assigns: %{editing: true}} = socket) do
+  def handle_event("keyup", @arrow_right, %{assigns: %{editing: true}} = socket) do
     socket |> save_and_move(:right)
   end
 
-  def handle_event("keyup", %{"code" => "ArrowUp"}, %{assigns: %{editing: true}} = socket) do
+  def handle_event("keyup", @arrow_up, %{assigns: %{editing: true}} = socket) do
     socket |> save_and_move(:up)
   end
 
-  def handle_event("keyup", %{"code" => "ArrowDown"}, %{assigns: %{editing: true}} = socket) do
+  def handle_event("keyup", @arrow_down, %{assigns: %{editing: true}} = socket) do
     socket |> save_and_move(:down)
   end
 
   # Formatting events
   def handle_event("bold", _, socket), do: toggle_format(socket, :bold)
 
-  def handle_event(
-        "keydown",
-        %{"key" => "b", "metaKey" => true},
-        %{assigns: %{editing: false}} = socket
-      ) do
+  def handle_event("keydown", @meta_b, %{assigns: %{editing: false}} = socket) do
     toggle_format(socket, :bold)
   end
 
   def handle_event("italics", _, socket), do: toggle_format(socket, :italics)
 
-  def handle_event(
-        "keydown",
-        %{"key" => "i", "metaKey" => true},
-        %{assigns: %{editing: false}} = socket
-      ) do
+  def handle_event("keydown", @meta_i, %{assigns: %{editing: false}} = socket) do
     toggle_format(socket, :italics)
   end
 
