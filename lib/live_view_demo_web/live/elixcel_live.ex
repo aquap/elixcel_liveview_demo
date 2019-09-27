@@ -150,8 +150,19 @@ defmodule LiveViewDemoWeb.ElixcelLive do
      )}
   end
 
-  def handle_event("keydown", %{"key" => "b", "metaKey" => true}, %{assigns: %{editing: false}} = socket), do: toggle_format(socket, :bold)
-  def handle_event("keydown", %{"key" => "i", "metaKey" => true}, %{assigns: %{editing: false}} = socket), do: toggle_format(socket, :italics)
+  def handle_event(
+        "keydown",
+        %{"key" => "b", "metaKey" => true},
+        %{assigns: %{editing: false}} = socket
+      ),
+      do: toggle_format(socket, :bold)
+
+  def handle_event(
+        "keydown",
+        %{"key" => "i", "metaKey" => true},
+        %{assigns: %{editing: false}} = socket
+      ),
+      do: toggle_format(socket, :italics)
 
   # Pressing an alpha-numeric key will enter the edit mode
   def handle_event("keyup", %{"key" => key}, socket) do
@@ -204,7 +215,9 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   defp updated_cells(socket) do
     [current_column, current_row] = socket.assigns.current_cell
-    socket.assigns.cells |> Map.put([current_column, current_row], %{value: socket.assigns[:edited_value]})
+
+    socket.assigns.cells
+    |> Map.put([current_column, current_row], %{value: socket.assigns[:edited_value]})
   end
 
   defp cell_value(cells, col, row) do
@@ -213,8 +226,17 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   def toggle_format(socket, format) do
     [current_column, current_row] = socket.assigns.current_cell
-    format_value = socket.assigns.cells |> get_in([[current_column, current_row], :format, format])
-    cells = socket.assigns.cells |> Map.put([current_column, current_row], %{value: current_cell_value(socket), format: %{ format => !format_value }})
+
+    format_value =
+      socket.assigns.cells |> get_in([[current_column, current_row], :format, format])
+
+    cells =
+      socket.assigns.cells
+      |> Map.put([current_column, current_row], %{
+        value: current_cell_value(socket),
+        format: %{format => !format_value}
+      })
+
     {:noreply, assign(socket, cells: cells)}
   end
 
@@ -245,7 +267,12 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     value = String.replace(cells[[col, row]][:value], "=", "")
 
     references = Regex.scan(~r/[A-Za-z][0-9]+/, value) |> Enum.map(fn x -> Enum.at(x, 0) end)
-    scope = references |> Enum.reduce(%{}, fn ref, acc -> Map.put(acc, ref, String.to_integer(computed_cell_value(cells, ref))) end)
+
+    scope =
+      references
+      |> Enum.reduce(%{}, fn ref, acc ->
+        Map.put(acc, ref, String.to_integer(computed_cell_value(cells, ref)))
+      end)
 
     case Abacus.eval(value, scope) do
       {:ok, result} -> result
