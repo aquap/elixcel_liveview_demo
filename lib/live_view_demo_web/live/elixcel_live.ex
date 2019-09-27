@@ -126,11 +126,24 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     socket |> save_and_move(:down)
   end
 
-  def handle_event("keydown", %{"key" => "b", "metaKey" => true}, %{assigns: %{editing: false}} = socket) do
+  # Formatting events
+  def handle_event("bold", _, socket), do: toggle_format(socket, :bold)
+
+  def handle_event(
+        "keydown",
+        %{"key" => "b", "metaKey" => true},
+        %{assigns: %{editing: false}} = socket
+      ) do
     toggle_format(socket, :bold)
   end
 
-  def handle_event("keydown", %{"key" => "i", "metaKey" => true}, %{assigns: %{editing: false}} = socket) do
+  def handle_event("italics", _, socket), do: toggle_format(socket, :italics)
+
+  def handle_event(
+        "keydown",
+        %{"key" => "i", "metaKey" => true},
+        %{assigns: %{editing: false}} = socket
+      ) do
     toggle_format(socket, :italics)
   end
 
@@ -172,10 +185,6 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   def handle_event("add-col", _, socket) do
     {:noreply, assign(socket, cols: socket.assigns.cols + 1)}
   end
-
-  # Formatting events
-  def handle_event("bold", _, socket), do: toggle_format(socket, :bold)
-  def handle_event("italics", _, socket), do: toggle_format(socket, :italics)
 
   # Private functions
 
@@ -268,11 +277,18 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   defp save_and_move(socket, direction) do
-    {:noreply, assign(socket, current_cell: new_current_cell(socket, direction), editing: false, cells: updated_cells(socket), edited_value: nil)}
+    {:noreply,
+     assign(socket,
+       current_cell: new_current_cell(socket, direction),
+       editing: false,
+       cells: updated_cells(socket),
+       edited_value: nil
+     )}
   end
 
   defp new_current_cell(socket, direction) do
     [current_column, current_row] = socket.assigns.current_cell
+
     case direction do
       :left ->
         [max(current_column - 1, 1), current_row]
@@ -287,7 +303,6 @@ defmodule LiveViewDemoWeb.ElixcelLive do
         [current_column, min(current_row + 1, socket.assigns.rows)]
     end
   end
-
 
   defp active_class(column, row, [column, row]), do: "active"
   defp active_class(_, _, _), do: ""
