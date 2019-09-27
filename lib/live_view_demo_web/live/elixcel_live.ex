@@ -241,10 +241,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   defp computed_cell_value(cells, ref) do
-    [letter | digits] = String.codepoints(ref)
-    letter = letter |> String.capitalize()
-    col = " ABCDEFGHIJKLMNOPQRSTUVWXYZ" |> String.codepoints() |> Enum.find_index(&(&1 == letter))
-    row = digits |> Enum.join("") |> String.to_integer()
+    [col, row] = ref_to_col_row(ref)
     computed_cell_value(cells, col, row)
   end
 
@@ -262,6 +259,14 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   defp computed_cell_value(cells, col, row, false) do
     cell_value(cells, col, row)
+  end
+
+  def ref_to_col_row(ref) do
+    [letter | digits] = String.codepoints(ref)
+    letter = letter |> String.capitalize()
+    col = " ABCDEFGHIJKLMNOPQRSTUVWXYZ" |> String.codepoints() |> Enum.find_index(&(&1 == letter))
+    row = digits |> Enum.join("") |> String.to_integer()
+    [col, row]
   end
 
   defp move(direction, socket) do
