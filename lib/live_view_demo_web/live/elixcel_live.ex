@@ -150,19 +150,13 @@ defmodule LiveViewDemoWeb.ElixcelLive do
      )}
   end
 
-  def handle_event(
-        "keydown",
-        %{"key" => "b", "metaKey" => true},
-        %{assigns: %{editing: false}} = socket
-      ),
-      do: toggle_format(socket, :bold)
+  def handle_event("keydown", %{"key" => "b", "metaKey" => true}, %{assigns: %{editing: false}} = socket) do
+    toggle_format(socket, :bold)
+  end
 
-  def handle_event(
-        "keydown",
-        %{"key" => "i", "metaKey" => true},
-        %{assigns: %{editing: false}} = socket
-      ),
-      do: toggle_format(socket, :italics)
+  def handle_event("keydown", %{"key" => "i", "metaKey" => true}, %{assigns: %{editing: false}} = socket) do
+    toggle_format(socket, :italics)
+  end
 
   # Pressing an alpha-numeric key will enter the edit mode
   def handle_event("keyup", %{"key" => key}, socket) do
