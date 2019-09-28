@@ -296,6 +296,8 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     # Given the string "A1 + B2" this will turn it into an array of references ie. ["A1", "B2"]
     references = Regex.scan(~r/[A-Za-z][0-9]+/, value) |> Enum.map(fn x -> Enum.at(x, 0) end)
 
+    # Build a map of references and values ie.
+    # %{"A1" => 2, "B2" => 14}
     scope =
       references
       |> Enum.reduce(%{}, fn ref, acc ->
@@ -312,6 +314,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     cell_value(cells, col, row)
   end
 
+  # Converts a reference like "A1" to [1, 1]
   defp ref_to_col_row(ref) do
     [letter | digits] = String.codepoints(ref)
     letter = letter |> String.capitalize()
