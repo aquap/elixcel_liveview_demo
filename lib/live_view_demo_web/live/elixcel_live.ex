@@ -13,6 +13,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   @arrow_up %{"code" => "ArrowUp"}
   @arrow_down %{"code" => "ArrowDown"}
   @tab %{"code" => "Tab"}
+  @backspace %{"code" => "Backspace"}
   @meta_b %{"key" => "b", "metaKey" => true}
   @ctrl_b %{"key" => "b", "ctrlKey" => true}
   @meta_i %{"key" => "i", "metaKey" => true}
@@ -140,6 +141,10 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     socket |> move(:right)
   end
 
+  def handle_event("keydown", @backspace, %{assigns: %{editing: false}} = socket) do
+    socket |> clear_current_cell()
+  end
+
   # Navigation with the arrow keys - when editing we save the edited value and move
   def handle_event("keyup", @arrow_left, %{assigns: %{editing: true}} = socket) do
     socket |> save_and_move(:left)
@@ -231,6 +236,11 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   defp changeset(value) do
     %LiveViewDemoWeb.ElixcelLive{} |> Ecto.Changeset.cast(%{value: value}, [:value])
+  end
+
+  defp clear_current_cell(socket) do
+    [current_column, current_row] = socket.assigns.current_cell
+    {:noreply, assign(socket, cells: socket.assigns.cells |> Map.delete([current_column, current_row]))}
   end
 
   defp updated_cells(socket) do
