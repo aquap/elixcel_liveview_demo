@@ -184,7 +184,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
   # Pressing an alpha-numeric key will enter the edit mode
   def handle_event("keyup", %{"key" => key}, %{assigns: %{editing: false}} = socket) do
-    if String.match?(key, ~r/^[[:alnum:]]$/u) do
+    if String.match?(key, ~r/^[[:alnum:]=]$/u) do
       {:noreply, assign(socket, editing: true, changeset: changeset(key), edited_value: key)}
     else
       {:noreply, socket}
