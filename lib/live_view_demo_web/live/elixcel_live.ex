@@ -67,7 +67,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
       </tbody>
     </table>
 
-    <ul>
+    <ul class="list-unstyled" id="help-text">
       <li>Navigate using the arrow keys</li>
       <li>Enter a string or a number by using the keyboard</li>
       <li>Edit an existing cell by pressing Enter</li>
@@ -84,6 +84,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
       td.active { background-color: #dff4fb; }
       td.active.editing { background-color: white; }
       td input { border: none; }
+      #help-text { opacity: 0.5 }
     </style>
     """
   end
