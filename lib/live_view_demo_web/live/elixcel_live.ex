@@ -241,7 +241,8 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   defp clear_current_cell(socket) do
-    {:noreply, assign(socket, cells: socket.assigns.cells |> Map.delete(socket.assigns.current_cell))}
+    {:noreply,
+     assign(socket, cells: socket.assigns.cells |> Map.delete(socket.assigns.current_cell))}
   end
 
   defp updated_cells(socket) do
@@ -254,8 +255,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   end
 
   defp toggle_format(socket, format) do
-    format_value =
-      socket.assigns.cells |> get_in([socket.assigns.current_cell, :format, format])
+    format_value = socket.assigns.cells |> get_in([socket.assigns.current_cell, :format, format])
 
     cells =
       socket.assigns.cells
