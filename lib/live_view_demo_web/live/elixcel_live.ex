@@ -72,8 +72,9 @@ defmodule LiveViewDemoWeb.ElixcelLive do
       <li>Enter a string or a number by using the keyboard</li>
       <li>Edit an existing cell by pressing Enter</li>
       <li>Discard changes to a cell by pressing Escape</li>
+      <li>Delete a cell by pressing Backspace</li>
       <li>Toggle <strong>bold</strong>/<em>italics</em> with Cmd+b/Ctrl+b or Cmd+i/Ctrl+i</li>
-      <li>Mathematical expression must start with an equal(=) sign and can reference other cells ie. <code>= B2 * C2 + 10</code></li>
+      <li>Mathematical expressions must start with an equal(=) sign and can reference other cells ie. <code>= B2 * C2 + 10</code></li>
     </ul>
 
     <style>
