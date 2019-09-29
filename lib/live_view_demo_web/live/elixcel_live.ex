@@ -284,9 +284,9 @@ defmodule LiveViewDemoWeb.ElixcelLive do
   defp computed_cell_value(cells, col, row, visited \\ MapSet.new()) do
     if MapSet.member?(visited, [col, row]) do
       # We have a cyclic reference - fail
-      {:error, "REF#"}
+      "REF#"
     else
-      MapSet.put(visited, [col, row])
+      visited = MapSet.put(visited, [col, row])
 
       value = cells[[col, row]][:value]
 
