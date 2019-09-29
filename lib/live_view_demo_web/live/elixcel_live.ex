@@ -288,27 +288,30 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     else
       visited = MapSet.put(visited, [col, row])
 
-      value = cells[[col, row]][:value]
+      value = cell_value(cells, col, row)
 
-      integer =
-        case is_binary(value) && Integer.parse(value) do
-          {num, ""} -> num
-          _ -> false
-        end
+      integer(value) || float(value) || expression(value, cells, visited) || value
+    end
+  end
 
-      float =
-        case is_binary(value) && Float.parse(value) do
-          {num, ""} -> num
-          _ -> false
-        end
+  defp integer(value) do
+    case is_binary(value) && Integer.parse(value) do
+      {num, ""} -> num
+      _ -> false
+    end
+  end
 
-      expression =
-        case is_binary(value) && String.starts_with?(value, "=") do
-          true -> compute(value, cells, visited)
-          _ -> false
-        end
+  defp float(value) do
+    case is_binary(value) && Float.parse(value) do
+      {num, ""} -> num
+      _ -> false
+    end
+  end
 
-      integer || float || expression || value
+  defp expression(value, cells, visited) do
+    case is_binary(value) && String.starts_with?(value, "=") do
+      true -> compute(value, cells, visited)
+      _ -> false
     end
   end
 
