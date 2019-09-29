@@ -20,7 +20,7 @@ defmodule LiveViewDemo.MixProject do
   def application do
     [
       mod: {LiveViewDemo.Application, []},
-      extra_applications: [:logger, :runtime_tools, :abacus]
+      extra_applications: [:logger, :runtime_tools]
     ]
   end
 
