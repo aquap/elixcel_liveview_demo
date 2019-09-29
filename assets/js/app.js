@@ -28,6 +28,8 @@ Hooks.SetFocus = {
   }
 };
 
+// A bunch of keys are handled by the Elixcel live view and we do not
+// want to also send those to the browser
 document.addEventListener("keydown", event => {
   if (
     event.key == "ArrowUp" ||
