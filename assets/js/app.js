@@ -35,12 +35,16 @@ document.addEventListener("keydown", event => {
     event.key == "ArrowLeft" ||
     event.key == "ArrowRight" ||
     event.key == "Tab" ||
-    event.key == "Backspace" ||
     (event.metaKey && event.key == "b") ||
     (event.ctrlKey && event.key == "b") ||
     (event.metaKey && event.key == "i") ||
     (event.ctrlKey && event.key == "i")
   ) {
+    event.preventDefault();
+  }
+
+  // Only send Backspace to the browser when editing
+  if ((event.key == "Backspace") && document.querySelectorAll('table[editing]').length == 0) {
     event.preventDefault();
   }
 });

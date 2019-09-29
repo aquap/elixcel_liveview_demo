@@ -33,7 +33,7 @@ defmodule LiveViewDemoWeb.ElixcelLive do
       <a href="#" phx-click="add-col" class="btn btn-outline-success btn-sm ml-2 mr-3">Add Column</a>
     </div>
 
-    <table phx-keydown="keydown" phx-keyup="keyup" phx-target="window" class="table table-bordered">
+    <table phx-keydown="keydown" phx-keyup="keyup" phx-target="window" class="table table-bordered" <%= @editing && "editing" || "" %>>
       <tbody>
         <tr>
           <td></td>
