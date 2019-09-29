@@ -304,20 +304,18 @@ defmodule LiveViewDemoWeb.ElixcelLive do
 
       expression =
         case is_binary(value) && String.starts_with?(value, "=") do
-          true -> String.replace(value, "=", "", global: false)
+          true -> compute(value, cells, visited)
           _ -> false
         end
 
-      cond do
-        integer -> integer
-        float -> float
-        expression -> compute(expression, cells, visited)
-        true -> value
-      end
+      integer || float || expression || value
     end
   end
 
   defp compute(expression, cells, visited) do
+    # Remove leading =
+    expression = String.replace(expression, "=", "", global: false)
+
     # Given the string "A1 + B2" this will turn it into an array of references ie. ["A1", "B2"]
     references = Regex.scan(~r/[A-Za-z][0-9]+/, expression) |> Enum.map(fn x -> Enum.at(x, 0) end)
 
