@@ -15,7 +15,7 @@ defmodule ElixcelLive.DemoData do
     [2, 4] => %{value: "6"},
     [3, 4] => %{value: "5"},
     [4, 4] => %{value: "= B4 * C4"},
-    [4, 5] => %{value: "D2 + D3 + D4", format: %{bold: true}}
+    [4, 5] => %{value: "= D2 + D3 + D4", format: %{bold: true}}
   }
 
   def cells() do

@@ -280,40 +280,61 @@ defmodule LiveViewDemoWeb.ElixcelLive do
     cell_value(socket.assigns.cells, current_column, current_row)
   end
 
-  defp computed_cell_value(cells, col, row) do
-    computed_cell? = (cells[[col, row]][:value] || "") |> String.starts_with?("=")
-    computed_cell_value(cells, col, row, computed_cell?)
+  # Computed cell values are calculated recursively to resolve references to other cells
+  defp computed_cell_value(cells, col, row, visited \\ MapSet.new()) do
+    if MapSet.member?(visited, [col, row]) do
+      # We have a cyclic reference - fail
+      {:error, "REF#"}
+    else
+      MapSet.put(visited, [col, row])
+
+      value = cells[[col, row]][:value]
+
+      integer =
+        case is_binary(value) && Integer.parse(value) do
+          {num, ""} -> num
+          _ -> false
+        end
+
+      float =
+        case is_binary(value) && Float.parse(value) do
+          {num, ""} -> num
+          _ -> false
+        end
+
+      expression =
+        case is_binary(value) && String.starts_with?(value, "=") do
+          true -> String.replace(value, "=", "", global: false)
+          _ -> false
+        end
+
+      cond do
+        integer -> integer
+        float -> float
+        expression -> compute(expression, cells, visited)
+        true -> value
+      end
+    end
   end
 
-  # Computed cell values are calculated recursively to resolve references to other cells
-  defp computed_cell_value(cells, col, row, true) do
-    value = String.replace(cells[[col, row]][:value], "=", "")
-
+  defp compute(expression, cells, visited) do
     # Given the string "A1 + B2" this will turn it into an array of references ie. ["A1", "B2"]
-    references = Regex.scan(~r/[A-Za-z][0-9]+/, value) |> Enum.map(fn x -> Enum.at(x, 0) end)
+    references = Regex.scan(~r/[A-Za-z][0-9]+/, expression) |> Enum.map(fn x -> Enum.at(x, 0) end)
 
     # Build a map of references and values ie.
     # %{"A1" => 2, "B2" => 14}
     scope =
       references
       |> Enum.reduce(%{}, fn ref, acc ->
-        Map.put(acc, ref, String.to_integer(computed_cell_value(cells, ref)))
+        [col, row] = ref_to_col_row(ref)
+        Map.put(acc, ref, computed_cell_value(cells, col, row, visited))
       end)
 
-    case Abacus.eval(value, scope) do
+    # Use Abacus to calculate the actual value
+    case Abacus.eval(expression, scope) do
       {:ok, result} -> result
       {:error, _} -> "#ERR"
     end
-  end
-
-  # Non-computed cells just have a plain value
-  defp computed_cell_value(cells, col, row, false) do
-    cell_value(cells, col, row)
-  end
-
-  defp computed_cell_value(cells, ref) do
-    [col, row] = ref_to_col_row(ref)
-    computed_cell_value(cells, col, row)
   end
 
   # Converts a reference like "A1" to [1, 1]
