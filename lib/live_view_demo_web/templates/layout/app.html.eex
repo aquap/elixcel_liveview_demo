@@ -11,6 +11,10 @@
     <main role="main" class="container mt-3">
       <%= render @view_module, @view_template, assigns %>
     </main>
+    <footer class="footer mt-5"><div class="container text-muted">Made by <a href="https://github.com/joerichsen/">joerichsen</a>. Check out the <a href="https://github.com/joerichsen/live_view_demo">code</a>.</div></footer>
+    <style>
+      .footer { background-color: '#f5f5f5' }
+    </style>
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>
